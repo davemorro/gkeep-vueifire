@@ -1,19 +1,18 @@
 
-import Firebase from 'firebase'
+import firebase from 'firebase'
 import EventEmitter from 'events'
 
 // extend EventEmitter so user of NoteRepository can react to our own defined events (ex: noteRepository.on('added'))
 class NoteRepository extends EventEmitter {
   get uid () {
-    return this.ref.getAuth().uid
+    return firebase.auth().currentUser.uid
   }
   get notesRef () {
-    return this.ref.child(`users/${this.uid}/notes`)
+    return this.ref.child(`notes/${this.uid}`)
   }
   constructor () {
     super()
-    // firebase reference to the notes
-    this.ref = new Firebase('https://gkeep-vueifire3.firebaseio.com') // will have same result as new Firebase('https://resplendent-heat-896.firebaseio.com/').child('notes')
+    this.ref = firebase.database().ref()
   }
   // creates a note
   create ({title = '', content = ''}, onComplete) {
@@ -57,7 +56,7 @@ class NoteRepository extends EventEmitter {
   // processes the snapshots to consistent note with key
   snapshotToNote (snapshot) {
     // we will need the key often, so we always want to have the key included in the note
-    let key = snapshot.key()
+    let key = snapshot.key
     let note = snapshot.val()
     note.key = key
     return note

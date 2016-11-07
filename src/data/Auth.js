@@ -1,38 +1,51 @@
-import Firebase from 'firebase'
+import firebase from 'firebase'
 
 export default {
-  ref: new Firebase('https://gkeep-vueifire3.firebaseio.com/'),
+  auth: firebase.initializeApp({
+    apiKey: 'AIzaSyBqQrhLZ_09ZGLUYrLlv7BLLXLSLX-Rw5M',
+    authDomain: 'collections-8c06c.firebaseapp.com',
+    databaseURL: 'https://collections-8c06c.firebaseio.com',
+    storageBucket: 'collections-8c06c.appspot.com'
+  }).auth(),
+  // ref: new Firebase('https://gkeep-vueifire3.firebaseio.com/'),
   // calls callback when user signs in or out
   onAuth (authCallback) {
-    this.ref.onAuth(authCallback)
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        authCallback
+      } else {
+        // No user is signed in.
+      }
+    })
   },
   // get's authenticated user
   getAuth () {
-    return this.ref.getAuth()
+    return firebase.auth().currentUser
   },
   signInWithPassword (credentials) {
-    return this.ref.authWithPassword(credentials)
+    return this.auth.authWithPassword(credentials)
   },
   signUpWithPassword (credentials) {
-    return this.ref.createUser(credentials) // this will create a Firebase user for authentication, this is separate from our own user objects
+    return this.auth.createUser(credentials) // this will create a Firebase user for authentication, this is separate from our own user objects
   },
   signInWithProvider (provider, callback) {
     // provider => 'google', 'facebook', 'github', ...
-    this.ref.authWithOAuthPopup(provider, (error, authData) => {
-      if (error) {
-        if (error.code === 'TRANSPORT_UNAVAILABLE') {
-          // fall-back to browser redirects, and pick up the session
-          // automatically when we come back to the origin page
-          this.ref.authWithOAuthRedirect(provider, (error) => {
-            if (callback) callback(error, authData)
-          })
-        }
-      } else if (authData) {
-        if (callback) callback(null, authData)
+    if (provider === 'google') var providerAuth = new firebase.auth.GoogleAuthProvider()
+    this.auth.signInWithPopup(providerAuth).then(function (result) {
+      // .User signed in!
+      // var uid = result.user.uid
+      if (callback) callback(null, result)
+    }).catch(function (error) {
+      if (error.code === 'TRANSPORT_UNAVAILABLE') {
+        // fall-back to browser redirects, and pick up the session
+        // automatically when we come back to the origin page
+        // this.ref.authWithOAuthRedirect(provider, (error) => {
+        //   if (callback) callback(error, authData)
+        // })
       }
     })
   },
   signOut () {
-    this.ref.unauth()
+    this.auth.unauth()
   }
 }

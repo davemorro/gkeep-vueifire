@@ -1,6 +1,6 @@
 <template lang="pug">
   div.notes(v-el:notes)
-    note(v-for="note in filteredNotes" v-bind:note="note" @click="selectNote(note)")
+    note(v-for="note in filteredNotes" v-bind:note="note" @click="selectNote(note)" track-by="$index")
 </template>
 <script>
 import Masonry from 'masonry-layout'

@@ -13,7 +13,7 @@ export default {
   props: ['note'],
   computed: {
     size () {
-      let length = this.note.content.length
+      let length = this.note.content ? this.note.content.length : 0
       if (length < 500) {
         return 'small'
       }
